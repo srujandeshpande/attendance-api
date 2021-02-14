@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import FastAPI, Response, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-
+from datetime import datetime
 app = FastAPI()
 
 class Student(BaseModel):
@@ -33,7 +33,9 @@ async def new_student(student: Student, response: Response):
 async def student_attendance(student: Student_Min, response: Response):
     json_student = jsonable_encoder(student)
     try:
-        print("works")
+        srn = student['srn']
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         # TODO send the data to db
     except:
         response.status_code = 403
