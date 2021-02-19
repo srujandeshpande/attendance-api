@@ -3,6 +3,7 @@ from fastapi import FastAPI, Response, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from datetime import datetime
+import pymongo
 app = FastAPI()
 
 class Student(BaseModel):
