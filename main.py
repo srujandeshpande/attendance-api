@@ -4,7 +4,15 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from datetime import datetime
 import pymongo
+
 app = FastAPI()
+
+dbURL = ""
+# Get from dotenv
+
+mongo = pymongo.MongoClient(dbURL, maxPoolSize=50, connect=True)
+db = pymongo.database.Database(mongo, 'attendance')
+
 
 class Student(BaseModel):
     name: str
