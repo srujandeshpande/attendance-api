@@ -1,18 +1,19 @@
+import os
 from typing import Optional
 from fastapi import FastAPI, Response, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from datetime import datetime
 import pymongo
+from dotenv import load_dotenv
 
-app = FastAPI()
+load_dotenv()
+DBURL = os.getenv("DBURL")
 
-dbURL = ""
-# Get from dotenv
-
-mongo = pymongo.MongoClient(dbURL, maxPoolSize=50, connect=True)
+mongo = pymongo.MongoClient(DBURL, maxPoolSize=50, connect=True)
 db = pymongo.database.Database(mongo, 'attendance')
 
+app = FastAPI()
 
 class Student(BaseModel):
     name: str
@@ -45,6 +46,7 @@ async def student_attendance(student: Student_Min, response: Response):
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     try:
+        print("hi")
         # TODO send the data to db
     except:
         response.status_code = 403
