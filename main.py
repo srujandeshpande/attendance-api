@@ -11,7 +11,7 @@ load_dotenv()
 DBURL = os.getenv("DBURL")
 
 mongo = pymongo.MongoClient(DBURL, maxPoolSize=50, connect=True)
-db = pymongo.database.Database(mongo, 'attendance')
+db = mongo['attendance']
 
 app = FastAPI()
 
