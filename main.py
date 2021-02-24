@@ -32,8 +32,6 @@ async def root():
 
 @app.get("/students", status_code=200)
 async def get_students(response: Response):
-    # json_student = jsonable_encoder(student)
-    # srn = json_student['srn'].upper()
     students = db['students']
     res = json.loads(dumps(students.find({},{ "_id": 0, "srn": 1, "name": 1, "semester": 1 })))
     return res
@@ -47,29 +45,24 @@ async def new_student(student: Student, response: Response):
         students.update({'srn': json_student['srn']}, json_student, upsert=True)
     except:
         response.status_code = 400
-    
 
-@app.get("/attendance", status_code=200)
-async def student_attendance(student: Student_Min, response: Response):
-    json_student = jsonable_encoder(student)
-    srn = json_student['srn'].upper()
-    now = datetime.now()
-    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+@app.get("/attendance/{srn}", status_code=200)
+async def student_attendance(srn, response: Response):
+    srn = srn.upper()
     try:
-        print("hi")
-        # TODO send the data to db
+        student = db[srn]
+        res = json.loads(dumps(student.find({}, { "_id": 0 })))
+        return res
     except:
         response.status_code = 403
 
-@app.put("/attendance", status_code=200)
-async def student_attendance(student: Student_Min, response: Response):
-    json_student = jsonable_encoder(student)
-    srn = json_student['srn'].upper()
-    now = datetime.now()
-    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+@app.put("/attendance/{srn}", status_code=200)
+async def mark_student_attendance(srn, response: Response):
+    srn = srn.upper()
+    now = datetime.utcnow()
+    date_string = datetime.now().strftime("%Y-%m-%d")
     try:
-        print("hi")
-        # TODO send the data to db
+        student = db[srn]
+        student.update({'date': date_string}, {'time':now, 'date': date_string}, upsert=True)
     except:
-        response.status_code = 403
-
+        response.status_code = 400
