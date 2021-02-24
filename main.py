@@ -6,6 +6,8 @@ from pydantic import BaseModel
 from datetime import datetime
 import pymongo
 from dotenv import load_dotenv
+from bson.json_util import dumps
+import json
 
 load_dotenv()
 DBURL = os.getenv("DBURL")
@@ -18,28 +20,36 @@ app = FastAPI()
 class Student(BaseModel):
     name: str
     srn: str
-    semester: Optional[float] = None
+    semester: Optional[int] = None
 
 class Student_Min(BaseModel):
-    name: Optional[str] = None
     srn: str
-    semester: Optional[float] = None
 
 @app.get("/")
 async def root():
     res = "Hey there! Welcome to the Attendance App of PESU I/O Course 'Cloud Native Full Stack Development'"
     return res
 
-@app.post("/student", status_code=201)
+@app.get("/students", status_code=200)
+async def get_students(response: Response):
+    # json_student = jsonable_encoder(student)
+    # srn = json_student['srn'].upper()
+    students = db['students']
+    res = json.loads(dumps(students.find({},{ "_id": 0, "srn": 1, "name": 1, "semester": 1 })))
+    return res
+
+@app.post("/students", status_code=201)
 async def new_student(student: Student, response: Response):
     json_student = jsonable_encoder(student)
+    json_student['srn'] = json_student['srn'].upper()
+    students = db['students']
     try:
-        print("works")
-        # TODO send the data to db
+        students.update({'srn': json_student['srn']}, json_student, upsert=True)
     except:
-        response.status_code = 403
+        response.status_code = 400
     
-@app.put("/attend", status_code=200)
+
+@app.get("/attendance", status_code=200)
 async def student_attendance(student: Student_Min, response: Response):
     json_student = jsonable_encoder(student)
     srn = json_student['srn'].upper()
@@ -51,12 +61,15 @@ async def student_attendance(student: Student_Min, response: Response):
     except:
         response.status_code = 403
 
-@app.get("/student", status_code=200)
-async def get_attendance(student: Student, response: Response):
+@app.put("/attendance", status_code=200)
+async def student_attendance(student: Student_Min, response: Response):
     json_student = jsonable_encoder(student)
     srn = json_student['srn'].upper()
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     try:
-        print("works")
+        print("hi")
         # TODO send the data to db
     except:
         response.status_code = 403
+
