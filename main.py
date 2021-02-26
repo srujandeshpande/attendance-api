@@ -8,6 +8,9 @@ import pymongo
 from dotenv import load_dotenv
 from bson.json_util import dumps
 import json
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = ["*"]
 
 load_dotenv()
 DBURL = os.getenv("DBURL")
@@ -16,6 +19,14 @@ mongo = pymongo.MongoClient(DBURL, maxPoolSize=50, connect=True)
 db = mongo['attendance']
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Student(BaseModel):
     name: str
